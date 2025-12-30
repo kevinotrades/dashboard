@@ -1162,5 +1162,39 @@ to { opacity: 1; transform: scale(1) translateY(0); }
             openModal('modal-project');
         }
     </script>
+        <script src="https://unpkg.com/@supabase/supabase-js"></script>
+<script>
+    const supabaseUrl = 'postgresql://postgres.nxwqtnpjtebkkeeqvyhu:[YOUR-PASSWORD]@aws-1-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true'
+    const supabaseKey = 'sb_secret_0cffa80XM1r2_XnB8ByCJg__fNkIZPl'
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey)
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Ask database if user exists
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        })
+
+        if (error) {
+            alert("Wrong password!");
+        } else {
+            // Login success, load their specific data
+            loginScreen.classList.add('hidden');
+            loadUserData(data.user.id);
+        }
+    }
+</script>
+// Listen for new messages in the 'Ritual' channel
+const channel = supabase
+  .channel('room-ritual')
+  .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+    // When a new message arrives in the database, show it on screen
+    renderMessage(payload.new); 
+  })
+  .subscribe()
 
 </body></html>
